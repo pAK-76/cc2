@@ -24,6 +24,15 @@
     rule->_consequent = self->_consequent;
     return rule;
 }
+-(BOOL)isEqualTo:(id)object
+{
+    if (![object isKindOfClass:[self class]]) {
+        return NO;
+    }
+    Rule *another = (Rule*)object;
+    return [_antecedent isEqualToString:another->_antecedent]
+        && [_consequent isEqualToString:another->_consequent];
+}
 @end
 
 @implementation Grammar
@@ -137,6 +146,56 @@ NSString * const kKSRulePattern = @"[A-Z] ?-> ?[A-Za-z+\\-*/"EMPTY_STRING@"]*?";
 -(NSArray *)rules
 {
     return [NSArray arrayWithArray:_rules];
+}
+
+#pragma mark algorithms
+-(BOOL)_set:(NSMutableArray*)set containsObject:(id)object
+{
+    BOOL result = NO;
+    for (id obj in set) {
+        if ([obj isEqualTo:object]) {
+            result = YES;
+            break;
+        }
+    }
+    return result;
+}
+-(void)removeUnreachable
+{
+    NSMutableArray *newRules = [NSMutableArray array];
+    NSMutableArray *newNterminals = [NSMutableArray arrayWithObject:_axiom];
+    NSMutableArray *newTerminals = [NSMutableArray array];
+    BOOL modified = YES;
+    while(modified) {
+        modified = NO;
+        for (Rule *rule in _rules) {
+            if (![newRules containsObject:rule]) {
+                if ([newNterminals containsObject:rule.antecedent]) {
+                    modified = YES;
+                    [newRules addObject:rule];
+                    NSString *newSymbols = rule.consequent;
+                    for(NSUInteger i=0; i<newSymbols.length; ++i) {
+                        NSString *symbol = [newSymbols substringWithRange:NSMakeRange(i, 1)];
+                        if ([kNTerminals rangeOfString:symbol].location != NSNotFound) {
+                            if (![newNterminals containsObject:symbol]) {
+                                [newNterminals addObject:symbol];
+                            }
+                        } else if ([kTerminals rangeOfString:symbol].location != NSNotFound) {
+                            if (![newTerminals containsObject:symbol]) {
+                                [newTerminals addObject:symbol];
+                            }
+                        } else if (![symbol isEqualToString:kEmptyString]) {
+                            NSLog(@"Consequent contains forbidden symbols");
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    _nterms = [NSArray arrayWithArray:newNterminals];
+    _terms = [NSArray arrayWithArray:newTerminals];
+    _rules = [NSArray arrayWithArray:newRules];
 }
 
 @end

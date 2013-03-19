@@ -35,10 +35,11 @@
     [_rules addObject:@"S->A+A"];
     [_rules addObject:@"S->A-A"];
     [_rules addObject:@"A->B*B"];
+    [_rules addObject:@"C->AcS"];
+    [_rules addObject:@"A->B/B"];
     [_rules addObject:@"A->B"];
     [_rules addObject:@"B->a"];
     [_rules addObject:@"B->b"];
-    [_rules addObject:@"C->с"];
     [_table reloadData];
 }
 -(IBAction)set2:(id)sender
