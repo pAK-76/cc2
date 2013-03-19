@@ -193,9 +193,9 @@ NSString * const kKSRulePattern = @"[A-Z] ?-> ?[A-Za-z+\\-*/"EMPTY_STRING@"]*?";
         }
     }
     
-    _nterms = [NSArray arrayWithArray:newNterminals];
-    _terms = [NSArray arrayWithArray:newTerminals];
-    _rules = [NSArray arrayWithArray:newRules];
+    _nterms = newNterminals;
+    _terms = newTerminals;
+    _rules = newRules;
 }
 
 @end
